@@ -39,5 +39,5 @@ public class CoffeeController {
     public CoffeeResponse addCoffee(@RequestBody CreateCoffeeReq coffeeReq){
         return coffeeService.addCoffee(coffeeReq);
     }
-
+;
 }

@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
-import java.util.random.RandomGenerator;
 
 @Service
 public class CoffeeServiceImpl implements CoffeeService {
@@ -39,10 +37,13 @@ public class CoffeeServiceImpl implements CoffeeService {
     @Override
     public CoffeeResponse addCoffee(CreateCoffeeReq coffeeReq) {
         Coffee coffee = new Coffee();
-        coffee.setId(new Random().nextInt(6));
+        coffee.setId(new Random().nextInt(999999));
         coffee.setName(coffeeReq.name());
         coffee.setPrice(coffeeReq.price());
         coffee.setDescription(coffeeReq.description());
+
+        boolean isExisting = coffeeRepository.getAllCoffee().stream().anyMatch(coffee1 -> coffee1.getId().equals(coffee.getId()));
+        if (isExisting) throw new RuntimeException("Coffee with the id already exist bro!!");
         coffeeRepository.getAllCoffee().add(coffee);
 
         return CoffeeResponse.builder().name(coffee.getName()).price(coffee.getPrice()).description(coffee.getDescription()).build();
