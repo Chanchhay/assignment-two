@@ -4,7 +4,9 @@ import co.istad.restapi.domain.Coffee;
 import co.istad.restapi.dto.CoffeeResponse;
 import co.istad.restapi.dto.CreateCoffeeReq;
 import co.istad.restapi.service.CoffeeService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,8 +38,7 @@ public class CoffeeController {
 
     @PostMapping("/coffees")
     @ResponseStatus(HttpStatus.CREATED)
-    public CoffeeResponse addCoffee(@RequestBody CreateCoffeeReq coffeeReq){
+    public CoffeeResponse addCoffee(@Valid @RequestBody CreateCoffeeReq coffeeReq){
         return coffeeService.addCoffee(coffeeReq);
     }
-;
 }
