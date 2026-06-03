@@ -1,11 +1,13 @@
 package co.istad.restapi.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -13,25 +15,36 @@ import java.util.*;
 @Slf4j
 public class AppException {
 
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<?> handleServiceException(ResponseStatusException e){
+        ErrorResponse<?> errorResponse = ErrorResponse.builder()
+                .status(false)
+                .code(e.getStatusCode().value())
+                .message("Service exception erored")
+                .errors(e.getReason())
+                .build();
+        return ResponseEntity.status(e.getStatusCode()).body(errorResponse);
+    }
+
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException e) {
-        Map<String, Object> response = new LinkedHashMap<>();
-        log.error("Validation Exception happened");
-        response.put("status", "false");
-        response.put("code", "400");
-        response.put("message", "Validation error");
+    public ErrorResponse<?> handleValidationException(MethodArgumentNotValidException e) {
+        List<FieldErrorResponse> fields = new ArrayList<>();
+        e.getFieldErrors().forEach(fieldError ->
+        {
+            FieldErrorResponse field = FieldErrorResponse.builder()
+                    .field(fieldError.getField())
+                    .field(fieldError.getDefaultMessage())
+                    .build();
+            fields.add(field);
+        });
 
-        List<Map<String, String>> errors = new ArrayList<>();
-
-        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-            Map<String, String> errorDetail = new HashMap<>();
-            errorDetail.put("field", fieldError.getField());
-            errorDetail.put("message", fieldError.getDefaultMessage());
-            errors.add(errorDetail);
-        }
-
-        response.put("errors", errors);
-
-        return ResponseEntity.badRequest().body(response);
+        return ErrorResponse.builder()
+                .status(false)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message("Validation is errored")
+                .errors(fields)
+                .build();
     }
 }

@@ -3,6 +3,7 @@ package co.istad.restapi.controller;
 import co.istad.restapi.domain.Coffee;
 import co.istad.restapi.dto.CoffeeResponse;
 import co.istad.restapi.dto.CreateCoffeeReq;
+import co.istad.restapi.dto.UpdateCoffeeReq;
 import co.istad.restapi.service.CoffeeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -27,18 +28,31 @@ public class CoffeeController {
     }
 
     @GetMapping("/coffees/search")
-    public List<CoffeeResponse> getCoffeeByNameOrPrice(@RequestParam(required = false, defaultValue = "") String name, @RequestParam(required = false, defaultValue = "") Double price){
+    public List<CoffeeResponse> getCoffeeByNameOrPrice(@RequestParam(required = false, defaultValue = "") String name, @RequestParam(required = false, defaultValue = "") Double price) {
         return coffeeService.getCoffeeByNameOrPrice(name, price);
     }
 
     @GetMapping("/coffees/{id}")
-    public CoffeeResponse getCoffeeById(@PathVariable(required = false) Integer id){
+    public CoffeeResponse getCoffeeById(@PathVariable(required = false) Integer id) {
         return coffeeService.getCoffeeById(id);
     }
 
     @PostMapping("/coffees")
     @ResponseStatus(HttpStatus.CREATED)
-    public CoffeeResponse addCoffee(@Valid @RequestBody CreateCoffeeReq coffeeReq){
+    public CoffeeResponse addCoffee(@Valid @RequestBody CreateCoffeeReq coffeeReq) {
         return coffeeService.addCoffee(coffeeReq);
+    }
+
+
+    @PutMapping("/coffees/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CoffeeResponse updateCoffeeById(@PathVariable Integer id, @Valid @RequestBody UpdateCoffeeReq updateCoffeeReq) {
+        return coffeeService.updateCoffeeById(id, updateCoffeeReq);
+    }
+
+    @DeleteMapping("/coffees/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCoffeeById(@PathVariable Integer id) {
+        coffeeService.deleteCoffeeById(id);
     }
 }
